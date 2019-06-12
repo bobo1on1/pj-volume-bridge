@@ -44,11 +44,16 @@ class CJackClient
     bool                      m_connected;
     std::mutex                m_mutex;
     std::condition_variable   m_condition;
+    float                     m_prevvolume;
+    int                       m_samplerate;
 
     bool                      CreatePort(std::string name);
 
     static void               SJackInfoShutdownCallback(jack_status_t code, const char *reason, void *arg);
     void                      PJackInfoShutdownCallback(jack_status_t code, const char *reason);
+
+    static int                SJackSamplerateCallback(jack_nframes_t nframes, void *arg);
+    int                       PJackSamplerateCallback(jack_nframes_t nframes);
 
     static int                SJackProcessCallback(jack_nframes_t nframes, void *arg);
     int                       PJackProcessCallback(jack_nframes_t nframes);

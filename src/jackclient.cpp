@@ -19,11 +19,14 @@
 #include <cstdio>
 #include <cstring>
 #include <thread>
+#include <algorithm>
 
 CJackClient::CJackClient(CPulseVolume& pulsevolume) : m_pulsevolume(pulsevolume)
 {
-  m_client    = nullptr;
-  m_connected = false;
+  m_client     = nullptr;
+  m_connected  = false;
+  m_prevvolume = 0.0f;
+  m_samplerate = 48000;
 }
 
 CJackClient::~CJackClient()
@@ -45,6 +48,9 @@ bool CJackClient::Setup(std::string jackname, std::vector<std::string> portnames
     return false;
   }
 
+  m_samplerate = jack_get_sample_rate(m_client);
+  jack_set_sample_rate_callback(m_client, SJackSamplerateCallback, this);
+
   //register a callback for when jackd shuts down, so that the jack client can be restarted
   jack_on_info_shutdown(m_client, SJackInfoShutdownCallback, this);
 
@@ -52,7 +58,7 @@ bool CJackClient::Setup(std::string jackname, std::vector<std::string> portnames
   jack_set_process_callback(m_client, SJackProcessCallback, this);
 
   //register jack input and output ports
-  for (uint32_t i = 0; i < portnames.size(); i++)
+  for (size_t i = 0; i < portnames.size(); i++)
   {
     if (!CreatePort(portnames[i].c_str()))
       return false;
@@ -128,6 +134,17 @@ void CJackClient::PJackInfoShutdownCallback(jack_status_t code, const char *reas
   m_condition.notify_all();
 }
 
+int CJackClient::SJackSamplerateCallback(jack_nframes_t nframes, void *arg)
+{
+  return ((CJackClient*)arg)->PJackSamplerateCallback(nframes);
+}
+
+int CJackClient::PJackSamplerateCallback(jack_nframes_t nframes)
+{
+  m_samplerate = nframes;
+  return 0;
+}
+
 int CJackClient::SJackProcessCallback(jack_nframes_t nframes, void *arg)
 {
   return ((CJackClient*)arg)->PJackProcessCallback(nframes);
@@ -137,12 +154,31 @@ int CJackClient::PJackProcessCallback(jack_nframes_t nframes)
 {
   float volume = m_pulsevolume.Volume();
 
+  int startsample = 0;
+  if (volume != m_prevvolume)
+  { //if the volume changed, apply the new volume smoothly over one millisecond
+    int volumesamples = std::min(m_samplerate / 1000, (int)nframes);
+    float step = (volume - m_prevvolume) / volumesamples;
+
+    for (size_t port = 0; port < m_inports.size(); port++)
+    {
+      float* inptr  = (float*)jack_port_get_buffer(m_inports[port], nframes);
+      float* outptr = (float*)jack_port_get_buffer(m_outports[port], nframes);
+
+      for (int i = 0; i < volumesamples; i++)
+        outptr[i] = inptr[i] * (m_prevvolume + step * i);
+    }
+
+    m_prevvolume = volume;
+    startsample = volumesamples;
+  }
+  
   //copy all samples from each input port to each output port,
   //multiplied by the volume from pulseaudio
-  for (uint32_t i = 0; i < m_inports.size(); i++)
+  for (size_t port = 0; port < m_inports.size(); port++)
   {
-    float* inptr  = (float*)jack_port_get_buffer(m_inports[i], nframes);
-    float* outptr = (float*)jack_port_get_buffer(m_outports[i], nframes);
+    float* inptr  = (float*)jack_port_get_buffer(m_inports[port], nframes) + startsample;
+    float* outptr = (float*)jack_port_get_buffer(m_outports[port], nframes) + startsample;
 
     float* endptr = inptr + nframes;
     while (inptr != endptr)
