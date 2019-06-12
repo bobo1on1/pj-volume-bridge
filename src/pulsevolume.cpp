@@ -216,20 +216,17 @@ void CPulseVolume::SinkInfoCallback(pa_context *c, const pa_sink_info *i, int eo
   if (eol)
     return;
 
-  float volume;
+  pa_volume_t pulsevolume;
   if (i->mute)
-  {
-    volume = 0.0f;
-  }
+    pulsevolume = 0;
   else
-  {
-    pa_volume_t avg = pa_cvolume_avg(&i->volume);
-    volume = pa_sw_volume_to_linear(avg);
-  }
+    pulsevolume = pa_cvolume_avg(&i->volume);
 
+  float volume = pa_sw_volume_to_linear(pulsevolume);
   if (volume != m_volume)
   {
-    printf("Pulse: volume: %f%%\n", volume * 100.0f);
+    int volumepercentage = lround((double)pulsevolume / PA_VOLUME_NORM * 100.0);
+    printf("Pulse: volume: %i%%, factor: %f\n", volumepercentage, volume);
     m_volume = volume;
   }
 }
