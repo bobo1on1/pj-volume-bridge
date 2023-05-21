@@ -1,4 +1,4 @@
-# pulse-jack-volume-bridge
+# pj-volume-bridge
 Jack client that uses pulseaudio for volume control.<br>
 Its main use is to apply the same volume control as the module-jack-sink pulseaudio module.<br>
 This way, the line-in volume and the volume of jack clients can be controlled using pulseaudio.<br>
@@ -9,11 +9,11 @@ Installing
 Install the libpulse and libjack development files.
 
 Check out the repository:<br>
-```$git clone https://github.com/bobo1on1/pulse-jack-volume-bridge.git```
+```$git clone https://github.com/bobo1on1/pj-volume-bridge.git```
   
-This will create a new directory called pulse-jack-volume-bridge, to compile:<br>
+This will create a new directory called pj-volume-bridge, to compile:<br>
 ```
-$ cd pulse-jack-volume-bridge
+$ cd pj-volume-bridge
 $ ./waf configure
 $ ./waf
 ```
@@ -24,9 +24,9 @@ To install on your system:<br>
 Using
 =====
 
-To start pulse-jack-volume-bridge, simply enter the pulse-jack-volume-bridge command in a terminal without arguments:<br>
+To start pj-volume-bridge, simply enter the pj-volume-bridge command in a terminal without arguments:<br>
 ```
-$ pulse-jack-volume-bridge
+$ pj-volume-bridge
 Connecting to jackd
 Pulse: Connecting
 Pulse: Authorizing
@@ -58,5 +58,5 @@ Command line options
                      the default pulseaudio sink is used.
 
   example:
-    pulse-jack-volume-bridge -s jack_out -p left -p right
+    pj-volume-bridge -s jack_out -p left -p right
 ```

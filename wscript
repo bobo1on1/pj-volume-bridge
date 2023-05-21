@@ -3,7 +3,7 @@
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
-APPNAME='pulse-jack-volume-bridge'
+APPNAME='pj-volume-bridge'
 
 # these variables are mandatory ('/' are converted automatically)
 top = '.'
@@ -31,5 +31,5 @@ def build(bld):
               use=['jack','m','pthread','pulse'],
               includes='./src',
               cxxflags='-Wall -g',
-              target='pulse-jack-volume-bridge')
+              target='pj-volume-bridge')
 

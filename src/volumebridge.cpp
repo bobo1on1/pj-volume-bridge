@@ -1,17 +1,17 @@
-/*  This file is part of pulse-jack-volume-bridge.
+/*  This file is part of pj-volume-bridge.
 
-    pulse-jack-volume-bridge is free software: you can redistribute it and/or modify
+    pj-volume-bridge is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    pulse-jack-volume-bridge is distributed in the hope that it will be useful,
+    pj-volume-bridge is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with pulse-jack-volume-bridge.  If not, see <https://www.gnu.org/licenses/>.
+    along with pj-volume-bridge.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "volumebridge.h"
@@ -80,7 +80,7 @@ bool CVolumeBridge::Setup(int argc, char *argv[])
 
 void CVolumeBridge::PrintHelpMessage()
 {
-  printf("usage: pulse-jack-volume-bridge [option]\n");
+  printf("usage: pj-volume-bridge [option]\n");
   printf("\n");
   printf("Creates jack input-output port pairs, copies audio from input to output ports,\n");
   printf("scales the audio with the volume from a pulseaudio sink.\n");
@@ -102,7 +102,7 @@ void CVolumeBridge::PrintHelpMessage()
   printf("                     the default pulseaudio sink is used.\n");
   printf("\n");
   printf("  example:\n");
-  printf("    pulse-jack-volume-bridge -s jack_out -p left -p right\n");
+  printf("    pj-volume-bridge -s jack_out -p left -p right\n");
   printf("\n");
 }
 
